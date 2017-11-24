@@ -11,10 +11,10 @@ func ping() (Command) {
 	pingQuotes := [4]string{"Pong", "D-Did I do well?", "Oh oh, look at what I can do!", "Woaaah~"}
 
 	return Command {
-		 "ping",
-		 "Plays ping-pong with the user",
-		 "info",
-		 func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
+		 Name: "ping",
+		 Description: "Plays ping-pong with the user",
+		 Category: "info",
+		 Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
 		 	var start = time.Now().UnixNano() / 1000000
 		 	s.ChannelTyping(message.ChannelID)
 		 	var end = time.Now().UnixNano() / 1000000
@@ -24,7 +24,7 @@ func ping() (Command) {
 			 //Sends the pong :tm:
 		 	s.ChannelMessageSend(message.ChannelID, fmt.Sprintf(":mega: *%s.* I took **%d ms** to get back to you! :heart:", pingQuotes[rand.Intn(4)], end - start))
 		 },
-		 func(s *discordgo.Session, message *discordgo.MessageCreate) {
+		 Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
 		 	var embed = &discordgo.MessageEmbed{ Title:"Ping Command", Description:"Woah" }
 			s.ChannelMessageSendEmbed(message.ChannelID, embed)
 		 },

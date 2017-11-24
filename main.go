@@ -61,7 +61,9 @@ func main() {
 }
 
 func registerCommands() {
-	registerCommand("ping", ping())
+	registerCommand(ping().Name, ping())
+	registerCommand(anime().Name, anime())
+	registerCommand(catgirl().Name, catgirl())
 }
 
 func registerCommand(name string, cmd Command) {
