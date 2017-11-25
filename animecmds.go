@@ -9,7 +9,6 @@ import (
 	"log"
 	"encoding/json"
 	"strings"
-	"strconv"
 	"bytes"
 )
 
@@ -71,43 +70,40 @@ func anime() (Command) {
 			}
 
 			if len(keys) > 1 {
-
 				var buffer bytes.Buffer
+				buffer.WriteString("\n")
 
 				for i, v := range keys {
 					if i > 4 {
 						break
 					}
 
-					buffer.WriteString(fmt.Sprintf("*%d*. **%s**\n", i + 1, v.EnglishTitle))
+					buffer.WriteString(fmt.Sprintf("**%d**.- *%s*", i + 1, v.EnglishTitle))
+					if i < 3 || i < len(keys) {
+						buffer.WriteString("\n")
+					}
 				}
 
 				s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
 					Title: "Anime Selection. Type the number to continue",
 					Description: "\n" + buffer.String(),
+					Thumbnail: &discordgo.MessageEmbedThumbnail{
+						URL: "http://i.imgur.com/apTJEIj.png",
+					},
+					Footer: &discordgo.MessageEmbedFooter{
+						Text: "Information provided by Anilist",
+						IconURL: message.Author.AvatarURL("128"),
+					},
 				})
-				createWaiter(message.ChannelID, message.Author.ID, func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
-					i, err := strconv.ParseInt(m.Content, 10, 32)
-					if err != nil {
-						fmt.Println("Cannot convert " + m.Content)
-						return false
-					}
 
-					max := len(keys)
-					if len(keys) > 5 {
-						max = 5
-					}
+				converted := make([]interface{}, len(keys))
+				for i, v := range keys {
+					converted[i] = v
+				}
 
-					if int(i) > max {
-						s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(":x: That's more than %d...", max))
-						return false
-					}
-
-					anime := keys[i - 1]
+				createSelectionWaiter(converted, message, func(key interface{}){
+					anime := key.(AnimeData)
 					animeInfo(anime, s, message)
-
-					//End the waiter
-					return true
 				})
 			} else {
 				anime := keys[0]
@@ -130,8 +126,11 @@ func animeInfo(anime AnimeData, s *discordgo.Session, message *discordgo.Message
 	}
 
 	s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
-		Title: fmt.Sprintf("Information of %s (%s)\n\n", anime.EnglishTitle, anime.JapaneseTitle),
-		Description: "\n" +  strings.Replace(descriptionWhole, "<br><br>", "\n", 10),
+		Author: &discordgo.MessageEmbedAuthor{
+			IconURL: message.Author.AvatarURL("128"),
+			Name: fmt.Sprintf("Information of %s (%s)\n\n", anime.EnglishTitle, anime.JapaneseTitle),
+		},
+		Description: "\n" +  strings.Replace(descriptionWhole, "<br>", "\n", 10),
 		Fields: []*discordgo.MessageEmbedField{
 			{ Name: "Score", Value: fmt.Sprintf("%d",anime.AverageScore) + "/100", Inline: true, },
 			{ Name: "Type", Value: strings.Title(anime.Type) , Inline: true, },
@@ -144,6 +143,7 @@ func animeInfo(anime AnimeData, s *discordgo.Session, message *discordgo.Message
 		},
 		Footer: &discordgo.MessageEmbedFooter{
 			Text: "Information provided by Anilist",
+			IconURL: "http://i.imgur.com/apTJEIj.png",
 		},
 	})
 }

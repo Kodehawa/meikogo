@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strconv"
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
@@ -79,4 +80,34 @@ func createWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
 	} else {
 		log.Println("There's already a waiter on " + channelId)
 	}
+}
+
+func createSelectionWaiter(keys []interface{}, message *discordgo.MessageCreate, selectionFunc func(key interface{})) {
+	createWaiter(message.ChannelID, message.Author.ID, func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+		i, err := strconv.ParseInt(m.Content, 10, 32)
+		if err != nil {
+			fmt.Println("Cannot convert " + m.Content)
+			return false
+		}
+
+		max := len(keys)
+		if len(keys) > 5 {
+			max = 5
+		}
+
+		if int(i) < 1 {
+			s.ChannelMessageSend(m.ChannelID, ":x: That's less than 1...")
+			return false
+		}
+
+		if int(i) > max {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(":x: That's more than %d...", max))
+			return false
+		}
+
+		selectionFunc(keys[i-1])
+
+		//End the waiter
+		return true
+	})
 }
