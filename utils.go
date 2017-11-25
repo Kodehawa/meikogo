@@ -39,6 +39,7 @@ func getRawJson(url string) ([]byte, error) {
 
 	bb, err := ioutil.ReadAll(r.Body)
 	if err == nil {
+		//fmt.Println(string(json.RawMessage(bb)))
 		return bb, nil
 	} else {
 		return []byte{0}, err
