@@ -53,7 +53,7 @@ func help() (Command) {
 					Name: "Meiko Help",
 				},
 				Description: "**Meiko's command help.**\n" +
-					"For extended command usage please run //help <command>\n",
+					"For extended command usage please run *//help <command>*\n",
 				Fields: embeds,
 				Footer: &discordgo.MessageEmbedFooter {
 					IconURL: message.Author.AvatarURL("128"),

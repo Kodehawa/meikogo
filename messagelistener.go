@@ -3,10 +3,9 @@ package main
 import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
-	"log"
 )
 
-var sessionCommands = 0;
+var sessionCommands = 0
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
@@ -21,13 +20,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if len(SplitContent) >= 1 {
 				var Command = SplitContent[0]
 				SplitContent := SplitContent[1:]
-
 				command, commandExists := cmds[Command]
 
 				if commandExists {
+					Content = strings.Trim(strings.Replace(Content, command.Name, "", 1), " ")
 					command.Execute(s, m, &Content, &SplitContent)
 					sessionCommands++
-					log.Println("Ran command: " + Command)
 				}
 			}
 		}

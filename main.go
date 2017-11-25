@@ -14,8 +14,11 @@ type Config struct {
 	Token string
 	OwnerId int
 	Prefix string
-	AnilistToken string `json:"anilist_token"`
-	AnilistSecret string `json:"anilist_secret"`
+	AnilistClient string   `json:"anilist_key"`
+	AnilistSecret string   `json:"anilist_secret"`
+	WeatherToken string    `json:"weatherAppId"`
+	DBotsOrgToken string
+	DBotsToken string
 }
 
 type Command struct {
@@ -63,11 +66,12 @@ func main() {
 		return
 	}
 
-	err = dg.UpdateStatus(0,"O-Oh, hi there!")
+	err = dg.UpdateStatus(0, "O-Oh, hi there!")
 	if err != nil {
 		log.Println(err)
 	}
 
+	anilistTokenUpdate()
 	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
@@ -77,10 +81,10 @@ func main() {
 }
 
 func registerCommands() {
-	registerCommand(ping().Name, ping())
-	registerCommand(anime().Name, anime())
-	registerCommand(catgirl().Name, catgirl())
-	registerCommand(help().Name, help())
+	registerCommand("ping", ping())
+	registerCommand("anime", anime())
+	registerCommand("catgirl", catgirl())
+	registerCommand("help", help())
 }
 
 func registerCommand(name string, cmd Command) {
