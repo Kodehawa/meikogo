@@ -18,6 +18,17 @@ type Config struct {
 	AnilistSecret string `json:"anilist_secret"`
 }
 
+type Command struct {
+	Name string
+	Description string
+	Category string
+	Execute HandlerFunc
+	Help HelpFunc
+}
+
+type HandlerFunc func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string)
+type HelpFunc func(s *discordgo.Session, message *discordgo.MessageCreate)
+
 var cmds = make(map[string]Command)
 var prefix = ""
 var config Config
