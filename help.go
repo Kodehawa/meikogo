@@ -24,6 +24,8 @@ func help() (Command) {
 				} else {
 					s.ChannelMessageSend(message.ChannelID, ":x: That command doesn't exist...")
 				}
+
+				return
 			}
 
 			var embeds []*discordgo.MessageEmbedField
@@ -46,17 +48,18 @@ func help() (Command) {
 			}
 
 			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
-				Title: "Command Help",
-				Description: "**Meiko's command help.**\n" +
-					"If you need help with a command in particular, please run //help <command>\n",
-				Fields: embeds,
-				Thumbnail: &discordgo.MessageEmbedThumbnail {
-					URL: s.State.User.AvatarURL("512"),
+				Author: &discordgo.MessageEmbedAuthor{
+					IconURL: s.State.User.AvatarURL("128"),
+					Name: "Meiko Help",
 				},
+				Description: "**Meiko's command help.**\n" +
+					"For extended command usage please run //help <command>\n",
+				Fields: embeds,
 				Footer: &discordgo.MessageEmbedFooter {
 					IconURL: message.Author.AvatarURL("128"),
 					Text: fmt.Sprintf("Commands ran this session: %d | Total commands: %d", sessionCommands, len(cmds)),
 				},
+				Color: 0x37b75b,
 			})
  		},
 		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {},
