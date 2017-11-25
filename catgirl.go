@@ -16,7 +16,6 @@ func catgirl() (Command) {
 		Category: "image",
 		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
 			splitContent := *split
-			splitContent = splitContent[1:]
 			neko := &Neko{}
 			if len(splitContent) == 1 {
 				if splitContent[0] == "nsfw" || splitContent[0] == "lewd" {

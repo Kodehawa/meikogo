@@ -1,58 +1,63 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
     "io/ioutil"
 	"github.com/bwmarrin/discordgo"
 	"encoding/json"
+	"log"
 )
 
 type Config struct {
 	Token string
 	OwnerId int
 	Prefix string
+	AnilistToken string `json:"anilist_token"`
+	AnilistSecret string `json:"anilist_secret"`
 }
 
-
 var cmds = make(map[string]Command)
-
 var prefix = ""
+var config Config
 
 func main() {
 	plan, _ := ioutil.ReadFile("./assets/config.json")
-	var data Config
-	err := json.Unmarshal(plan, &data)
-
-	Token := data.Token
-	prefix = data.Prefix
-
-	dg, err := discordgo.New("Bot " + Token)
+	err := json.Unmarshal(plan, &config)
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
+		log.Fatal("Error parsing config json file!")
 		return
 	}
 
+	Token := config.Token
+	prefix = config.Prefix
+
+	dg, err := discordgo.New("Bot " + Token)
+	if err != nil {
+		log.Fatal("error creating Discord session,", err)
+		return
+	}
+
+	log.Printf("Starting up Meiko...")
+
 	registerCommands()
+	log.Printf("Registered %d commands", len(cmds))
 
 	dg.AddHandler(messageCreate)
 
-
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("boom", err)
+		log.Fatal("Error opening up a Websocket connection", err)
 		return
 	}
 
 	err = dg.UpdateStatus(0,"O-Oh, hi there!")
-
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -64,6 +69,7 @@ func registerCommands() {
 	registerCommand(ping().Name, ping())
 	registerCommand(anime().Name, anime())
 	registerCommand(catgirl().Name, catgirl())
+	registerCommand(help().Name, help())
 }
 
 func registerCommand(name string, cmd Command) {
