@@ -74,11 +74,11 @@ func anime() (Command) {
 				Title: fmt.Sprintf("Information of %s (%s)\n\n", anime.EnglishTitle, anime.JapaneseTitle),
 				Description: "\n" +  strings.Replace(descriptionWhole, "<br><br>", "\n", 10),
 				Fields: []*discordgo.MessageEmbedField{
-					//{ Name: "Genres", Value: strings.Join(anime.Genres, ", "), Inline: true, },
 					{ Name: "Score", Value: "`" + fmt.Sprintf("%d",anime.AverageScore) + "/100" + "`", Inline: true, },
-					{ Name: "Start Date", Value: "`" + strings.Split(anime.StartDate, "T")[0] + "`" , Inline: true, },
 					{ Name: "Type", Value: "`" +  strings.Title(anime.Type) + "`" , Inline: true, },
-
+					{ Name: "Start Date", Value: "`" + strings.Split(anime.StartDate, "T")[0] + "`" , Inline: true, },
+					{ Name: "End Date", Value: "`" + strings.Split(anime.EndDate, "T")[0] + "`" , Inline: true, },
+					{ Name: "Genres", Value: "`" + strings.Join(anime.Genres, ", ") + "`", Inline: false, },
 				},
 				Thumbnail: &discordgo.MessageEmbedThumbnail{
 					URL: anime.MedImageUrl,
