@@ -36,7 +36,10 @@ func catgirl() (Command) {
 				SendNekoImage(s, message, "https://nekos.life/api/neko", neko)
 			}
 		},
-		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {}, //TODO make command help
+		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
+			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Catgirl Command", "**Displays a random catgirl image**\n" +
+				"You can look up nsfw images by using `//catgirl nsfw`.", 0xFFB6C1))
+		},
 	}
 }
 

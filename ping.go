@@ -25,8 +25,7 @@ func ping() (Command) {
 		 	s.ChannelMessageSend(message.ChannelID, fmt.Sprintf(":mega: *%s.* I took **%d ms** to get back to you! :heart:", pingQuotes[rand.Intn(4)], end - start))
 		 },
 		 Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
-		 	var embed = &discordgo.MessageEmbed{ Title:"Ping Command", Description:"Woah" }
-			s.ChannelMessageSendEmbed(message.ChannelID, embed)
+			 s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Ping Command", "**Displays the bot's ping.**", 0xFFB6C1))
 		 },
 	 }
 }

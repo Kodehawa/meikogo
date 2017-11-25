@@ -62,7 +62,9 @@ func help() (Command) {
 				Color: 0x37b75b,
 			})
  		},
-		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {},
+		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
+			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Help Command", "**Well, this command.**", 0xFFB6C1))
+		},
 	}
 }
 
