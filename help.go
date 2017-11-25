@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
+	//"fmt"
 )
 
 var categories = make(map[string]map[string]Command)
@@ -13,6 +14,18 @@ func help() (Command) {
 		Description: "Helps you to help the help helping help.",
 		Category: "info",
 		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
+
+			commandArguments := *split
+
+			if len(commandArguments) > 0 {
+				if _, ok := cmds[commandArguments[0]]; ok {
+					var cmd = cmds[commandArguments[0]]
+					cmd.Help(s, message)
+				} else {
+					s.ChannelMessageSend(message.ChannelID, ":x: That command doesn't exist...")
+				}
+			}
+
 			var embeds []*discordgo.MessageEmbedField
 
 			for name, value := range cmds {
@@ -27,14 +40,26 @@ func help() (Command) {
 
 			for k, v := range categories {
 				embeds = append(embeds, &discordgo.MessageEmbedField{
-					Name: strings.ToUpper(k),
+					Name: strings.Title(k),
 					Value: getCommandsFromMap(v),
 				})
 			}
 
-			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed{
-				Title: "Help",
+			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
+				Title: "Command Help",
+				Description: "**Meiko's command help.**\n" +
+					"If you need help with a command in particular, please run //help <command>\n",
 				Fields: embeds,
+
+				//Somehow those two don't work? The embed sends properly until I try to send it with a thumbnail or a footer.
+
+				/*Thumbnail: &discordgo.MessageEmbedThumbnail {
+					URL: s.State.User.Avatar,
+				},
+				Footer: &discordgo.MessageEmbedFooter {
+					IconURL: message.Author.Avatar,
+					Text: fmt.Sprintf("Commands ran this session: %d | Total commands: %d", sessionCommands, len(cmds)),
+				},*/
 			})
  		},
 		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {},

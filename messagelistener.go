@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+var sessionCommands = 0;
+
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -24,6 +26,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 				if commandExists {
 					command.Execute(s, m, &Content, &SplitContent)
+					sessionCommands++
 					log.Println("Ran command: " + Command)
 				}
 			}
