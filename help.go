@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
 	//"fmt"
+	"fmt"
 )
 
 var categories = make(map[string]map[string]Command)
@@ -50,16 +51,13 @@ func help() (Command) {
 				Description: "**Meiko's command help.**\n" +
 					"If you need help with a command in particular, please run //help <command>\n",
 				Fields: embeds,
-
-				//Somehow those two don't work? The embed sends properly until I try to send it with a thumbnail or a footer.
-
-				/*Thumbnail: &discordgo.MessageEmbedThumbnail {
-					URL: s.State.User.Avatar,
+				Thumbnail: &discordgo.MessageEmbedThumbnail {
+					URL: s.State.User.AvatarURL("512"),
 				},
 				Footer: &discordgo.MessageEmbedFooter {
-					IconURL: message.Author.Avatar,
+					IconURL: message.Author.AvatarURL("128"),
 					Text: fmt.Sprintf("Commands ran this session: %d | Total commands: %d", sessionCommands, len(cmds)),
-				},*/
+				},
 			})
  		},
 		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {},
