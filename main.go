@@ -59,6 +59,7 @@ func main() {
 	log.Printf("Registered %d commands", len(cmds))
 
 	dg.AddHandler(messageCreate)
+	dg.AddHandler(messageWait)
 
 	err = dg.Open()
 	if err != nil {
@@ -81,6 +82,7 @@ func main() {
 }
 
 func registerCommands() {
+	log.Printf("Registering commands...")
 	registerCommand("ping", ping())
 	registerCommand("anime", anime())
 	registerCommand("catgirl", catgirl())

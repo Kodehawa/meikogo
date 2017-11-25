@@ -9,6 +9,8 @@ import (
 	"log"
 	"encoding/json"
 	"strings"
+	"strconv"
+	"bytes"
 )
 
 type AnimeData struct {
@@ -68,36 +70,82 @@ func anime() (Command) {
 				return
 			}
 
-			anime := keys[0]
-			descriptionWhole := anime.Description
+			if len(keys) > 1 {
 
-			if len(descriptionWhole) > 1200 {
-				description := []rune(anime.Description)
-				descriptionWhole = string(description[0:1200]) + "..."
+				var buffer bytes.Buffer
+
+				for i, v := range keys {
+					if i > 4 {
+						break
+					}
+
+					buffer.WriteString(fmt.Sprintf("*%d*. **%s**\n", i + 1, v.EnglishTitle))
+				}
+
+				s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
+					Title: "Anime Selection. Type the number to continue",
+					Description: "\n" + buffer.String(),
+				})
+				createWaiter(message.ChannelID, message.Author.ID, func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+					i, err := strconv.ParseInt(m.Content, 10, 32)
+					if err != nil {
+						fmt.Println("Cannot convert " + m.Content)
+						return false
+					}
+
+					max := len(keys)
+					if len(keys) > 5 {
+						max = 5
+					}
+
+					if int(i) > max {
+						s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(":x: That's more than %d...", max))
+						return false
+					}
+
+					anime := keys[i - 1]
+					animeInfo(anime, s, message)
+
+					//End the waiter
+					return true
+				})
+			} else {
+				anime := keys[0]
+				animeInfo(anime, s, message)
 			}
 
-			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
-				Title: fmt.Sprintf("Information of %s (%s)\n\n", anime.EnglishTitle, anime.JapaneseTitle),
-				Description: "\n" +  strings.Replace(descriptionWhole, "<br><br>", "\n", 10),
-				Fields: []*discordgo.MessageEmbedField{
-					{ Name: "Score", Value: fmt.Sprintf("%d",anime.AverageScore) + "/100", Inline: true, },
-					{ Name: "Type", Value: "`" +  strings.Title(anime.Type) + "`" , Inline: true, },
-					{ Name: "Start Date", Value: "`" + strings.Split(anime.StartDate, "T")[0] , Inline: true, },
-					{ Name: "End Date", Value: "`" + strings.Split(anime.EndDate, "T")[0] + "`" , Inline: true, },
-					{ Name: "Genres", Value: "`" + strings.Join(anime.Genres, ", ") + "`", Inline: false, },
-				},
-				Thumbnail: &discordgo.MessageEmbedThumbnail{
-					URL: anime.MedImageUrl,
-				},
-				Footer: &discordgo.MessageEmbedFooter{
-					Text: "Information provided by Anilist",
-				},
-			})
 		},
 		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
 			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Anime Command", "**Search for your favorite anime!**", 0xa8a5c9))
 		},
 	}
+}
+
+func animeInfo(anime AnimeData, s *discordgo.Session, message *discordgo.MessageCreate) {
+	descriptionWhole := anime.Description
+
+	if len(descriptionWhole) > 1200 {
+		description := []rune(anime.Description)
+		descriptionWhole = string(description[0:1200]) + "..."
+	}
+
+	s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
+		Title: fmt.Sprintf("Information of %s (%s)\n\n", anime.EnglishTitle, anime.JapaneseTitle),
+		Description: "\n" +  strings.Replace(descriptionWhole, "<br><br>", "\n", 10),
+		Fields: []*discordgo.MessageEmbedField{
+			{ Name: "Score", Value: fmt.Sprintf("%d",anime.AverageScore) + "/100", Inline: true, },
+			{ Name: "Type", Value: strings.Title(anime.Type) , Inline: true, },
+			{ Name: "Start Date", Value: strings.Split(anime.StartDate, "T")[0] , Inline: true, },
+			{ Name: "End Date", Value: strings.Split(anime.EndDate, "T")[0] , Inline: true, },
+			{ Name: "Genres", Value: strings.Join(anime.Genres, ", "), Inline: false, },
+		},
+		Thumbnail: &discordgo.MessageEmbedThumbnail{
+			URL: anime.MedImageUrl,
+		},
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: "Information provided by Anilist",
+		},
+	})
 }
 
 func anilistTokenUpdate () {

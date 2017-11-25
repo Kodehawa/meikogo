@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"fmt"
 	"io/ioutil"
+	"log"
 )
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
@@ -61,5 +62,21 @@ func helpEmbed(s *discordgo.Session, message *discordgo.MessageCreate, name stri
 			Text: "For a list of all commands run //help",
 			IconURL: message.Author.AvatarURL("128"),
 		},
+	}
+}
+
+func currentTimeMillis() int64 {
+	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+}
+
+func createWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
+	if _, ok := waiters[channelId]; !ok {
+		waiters[channelId] = Waiter {
+			Timeout: currentTimeMillis() + 60000,
+			Function: waiterFunc,
+			Author: authorId,
+		}
+	} else {
+		log.Println("There's already a waiter on " + channelId)
 	}
 }

@@ -95,7 +95,16 @@ func ping() (Command) {
 
 func serverinfo() (Command) {
 	return Command {
+		Name: "serverinfo",
+		Description: "Shows the information of this server",
+		Category: "info",
+		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
 
+		},
+		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
+			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Server Info",
+				"**Shows detailed server information, such as the ID, number of members, owner, roles, etc.**", 0xFFB6C1))
+		},
 	}
 }
 
