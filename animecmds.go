@@ -101,7 +101,7 @@ func anime() (Command) {
 					converted[i] = v
 				}
 
-				createSelectionWaiter(converted, message, func(key interface{}){
+				CreateSelectionWaiter(converted, message, func(key interface{}){
 					anime := key.(AnimeData)
 					animeInfo(anime, s, message)
 				})
@@ -176,7 +176,7 @@ func character() (Command) {
 				}
 
 				anilistSelectionBox("Character", buffer, s, message)
-				createSelectionWaiter(converted, message, func(key interface{}){
+				CreateSelectionWaiter(converted, message, func(key interface{}){
 					character := key.(CharacterData)
 					characterInfo(character, s, message)
 				})

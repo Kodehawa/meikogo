@@ -63,7 +63,7 @@ func currentTimeMillis() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 }
 
-func createWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
+func CreateWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
 	if _, ok := waiters[channelId]; !ok {
 		waiters[channelId] = Waiter {
 			Timeout: currentTimeMillis() + 60000,
@@ -75,8 +75,8 @@ func createWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
 	}
 }
 
-func createSelectionWaiter(keys []interface{}, message *discordgo.MessageCreate, selectionFunc func(key interface{})) {
-	createWaiter(message.ChannelID, message.Author.ID, func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+func CreateSelectionWaiter(keys []interface{}, message *discordgo.MessageCreate, selectionFunc func(key interface{})) {
+	CreateWaiter(message.ChannelID, message.Author.ID, func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
 		i, err := strconv.ParseInt(m.Content, 10, 32)
 		if err != nil {
 			fmt.Println("Cannot convert " + m.Content)
