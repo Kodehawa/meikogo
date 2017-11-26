@@ -96,6 +96,8 @@ func registerCommands() {
 	registerCommand("serverinfo", serverinfo())
 	registerCommand("userinfo", userinfo())
 	registerCommand("ping", ping())
+	//Game commands
+	registerCommand("trivia", trivia()	)
 }
 
 func registerCommand(name string, cmd Command) {

@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"strings"
 	"bytes"
+	"html"
 )
 
 type AnimeData struct {
@@ -215,7 +216,7 @@ func characterInfo(character CharacterData, s *discordgo.Session, message *disco
 			IconURL: message.Author.AvatarURL("128"),
 			Name: fmt.Sprintf("Information for %s", name),
 		},
-		Description: "\n" +  strings.Replace(infoWhole, "<br>", "\n", 10),
+		Description: "\n" +  html.UnescapeString(strings.Replace(infoWhole, "<br>", "\n", 10)),
 		Thumbnail: &discordgo.MessageEmbedThumbnail{
 			URL: character.LargeImageUrl,
 		},
@@ -240,7 +241,7 @@ func animeInfo(anime AnimeData, s *discordgo.Session, message *discordgo.Message
 			IconURL: message.Author.AvatarURL("128"),
 			Name: fmt.Sprintf("Information of %s (%s)", anime.EnglishTitle, anime.JapaneseTitle),
 		},
-		Description: "\n" +  strings.Replace(descriptionWhole, "<br>", "\n", 10),
+		Description: "\n" +  html.UnescapeString(strings.Replace(descriptionWhole, "<br>", "\n", 10)),
 		Fields: []*discordgo.MessageEmbedField{
 			{ Name: "Score", Value: fmt.Sprintf("%d",anime.AverageScore) + "/100", Inline: true, },
 			{ Name: "Type", Value: strings.Title(anime.Type) , Inline: true, },
