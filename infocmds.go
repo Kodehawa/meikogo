@@ -59,7 +59,7 @@ func help() (Command) {
 					"For extended command usage please run *//help <command>*\n",
 				Fields: embeds,
 				Footer: &discordgo.MessageEmbedFooter {
-					Text: fmt.Sprintf("Commands ->> %d", len(cmds)),
+					Text: fmt.Sprintf("Total Commands ->> %d", len(cmds)),
 				},
 				Color: 0x37b75b,
 			})

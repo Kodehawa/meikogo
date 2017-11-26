@@ -8,6 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"encoding/json"
 	"log"
+	"github.com/go-redis/redis"
 )
 
 type Config struct {
@@ -32,6 +33,7 @@ type Command struct {
 type HandlerFunc func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string)
 type HelpFunc func(s *discordgo.Session, message *discordgo.MessageCreate)
 
+var RedisClient *redis.Client
 var cmds = make(map[string]Command)
 var prefix = ""
 var config Config
@@ -102,4 +104,12 @@ func registerCommands() {
 
 func registerCommand(name string, cmd Command) {
 	cmds[name] = cmd
+}
+
+func StartRedisClient() {
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       10,
+	})
 }

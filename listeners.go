@@ -24,8 +24,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	go func() {
 		var MessageContent = m.Content
-		if strings.HasPrefix(MessageContent, prefix) {
-			var Content = strings.Replace(MessageContent, prefix, "", 1)
+		channel, err := s.State.Channel(m.ChannelID)
+		if err != nil {
+			return
+		}
+
+		guildPrefix := prefix
+
+		pref, err := RedisClient.Get("guild:" + channel.GuildID + ":prefix").Result()
+		if err == nil {
+			guildPrefix = pref
+		}
+
+		if strings.HasPrefix(MessageContent, guildPrefix) {
+			var Content = strings.Replace(MessageContent, guildPrefix, "", 1)
 			var SplitContent= strings.Split(Content, " ")
 			if len(SplitContent) >= 1 {
 				var Command = SplitContent[0]
