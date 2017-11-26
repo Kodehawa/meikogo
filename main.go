@@ -13,7 +13,7 @@ import (
 
 type Config struct {
 	Token string
-	OwnerId int
+	OwnerId string
 	Prefix string
 	AnilistClient string   `json:"anilist_key"`
 	AnilistSecret string   `json:"anilist_secret"`
@@ -104,6 +104,8 @@ func registerCommands() {
 	registerCommand("trivia", trivia())
 	//Config commands
 	registerCommand("setprefix", setPrefix())
+	//Owner commands
+	registerCommand("eval", eval())
 }
 
 func registerCommand(name string, cmd Command) {

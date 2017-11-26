@@ -60,6 +60,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 				if commandExists {
 					Content = strings.Trim(strings.Replace(Content, command.Name, "", 1), " ")
+
+					if command.Category == "owner" && m.Author.ID != config.OwnerId {
+						s.ChannelMessageSend(m.ChannelID, ":octagonal_sign: You have no permission to execute this command!")
+						return
+					}
+
 					command.Execute(s, m, &Content, &SplitContent)
 					sessionCommands++
 				}
