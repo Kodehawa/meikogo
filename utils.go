@@ -63,6 +63,15 @@ func currentTimeMillis() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 }
 
+func GetGuildId(s *discordgo.Session, channelId string) (string, error) {
+	channel, err := s.State.Channel(channelId)
+	if err != nil {
+		return "", err
+	}
+
+	return channel.GuildID, nil
+}
+
 func CreateWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
 	if _, ok := waiters[channelId]; !ok {
 		waiters[channelId] = Waiter {

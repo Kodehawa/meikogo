@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 	"fmt"
+	"regexp"
 )
 
 var sessionCommands = 0
@@ -17,6 +18,8 @@ type Waiter struct {
 }
 
 type WaiterFunc func(s *discordgo.Session, m *discordgo.MessageCreate) (bool)
+
+var mentionRegex = regexp.MustCompile("^<@!?321466090159079444>$")
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
@@ -40,6 +43,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if len(guildData.Prefix) > 0 {
 			guildPrefix = guildData.Prefix
+		}
+
+		if mentionRegex.MatchString(m.Content) {
+			s.ChannelMessageSend(m.ChannelID, ":speech_balloon: Hi, my prefix on this server is `" + guildData.Prefix + "` <3")
+			return
 		}
 
 		if strings.HasPrefix(MessageContent, guildPrefix) {

@@ -98,8 +98,17 @@ func trivia() (Command) {
 						return false
 					}
 				} else {
-					if i < 6 && correctNumber == int(i) {
-						s.ChannelMessageSend(message.ChannelID, ":tada: Correct answer!")
+					if i > 5 {
+						return false
+					}
+
+					if correctNumber == int(i) {
+						userData, err := GetUserData(message.Author.ID)
+						if err == nil {
+							userData.IncrementGamesWon()
+							SaveUserData(message.Author.ID, userData)
+						}
+						s.ChannelMessageSend(message.ChannelID, fmt.Sprintf(":tada: Correct answer! Total Games you've won: %d", userData.GamesWon))
 						return true
 					}
 				}
@@ -108,7 +117,7 @@ func trivia() (Command) {
 			})
 
 		}, Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
-
+			s.ChannelMessageSendEmbed(message.ChannelID,helpEmbed(s, message, "Trivia Game", "**Starts a game of Trivia!**", 0xFFB6C1))
 		},
 	}
 }
