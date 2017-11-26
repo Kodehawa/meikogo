@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
+	"bytes"
 )
 
 var categories = make(map[string]map[string]Command)
@@ -44,7 +45,7 @@ func help() (Command) {
 
 			for k, v := range categories {
 				embeds = append(embeds, &discordgo.MessageEmbedField{
-					Name: strings.Title(k),
+					Name: fmt.Sprintf("%s Commands [%d]", strings.Title(k), len(v)),
 					Value: getCommandsFromMap(v),
 				})
 			}
@@ -58,8 +59,7 @@ func help() (Command) {
 					"For extended command usage please run *//help <command>*\n",
 				Fields: embeds,
 				Footer: &discordgo.MessageEmbedFooter {
-					IconURL: message.Author.AvatarURL("128"),
-					Text: fmt.Sprintf("Commands ran this session: %d | Total commands: %d", sessionCommands, len(cmds)),
+					Text: fmt.Sprintf("Commands ->> %d", len(cmds)),
 				},
 				Color: 0x37b75b,
 			})
@@ -99,11 +99,141 @@ func serverinfo() (Command) {
 		Description: "Shows the information of this server",
 		Category: "info",
 		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
+			channel, err := s.State.Channel(message.ChannelID)
+			if err != nil {
+				s.ChannelMessageSend(message.ChannelID, ":x: Error while retrieving channel...")
+				return
+			}
 
+			guild, err := s.State.Guild(channel.GuildID)
+			if err != nil {
+				s.ChannelMessageSend(message.ChannelID, ":x: Error while retrieving guild...")
+				return
+			}
+
+			owner, err := s.State.Member(guild.ID, guild.OwnerID)
+			if err != nil {
+				s.ChannelMessageSend(message.ChannelID, ":x: Error while retrieving owner...")
+				return
+			}
+
+			roles := guild.Roles
+			buffer := bytes.Buffer{}
+			for i := 0; i < len(roles); i++ {
+				role := roles[i]
+				if role.Name != "@everyone" {
+					buffer.WriteString(role.Name)
+				}
+
+				if i < len(roles) - 1 {
+					buffer.WriteString(", ")
+				}
+			}
+
+			rolesWhole := buffer.String()
+
+			if len(rolesWhole) > 900 {
+				split := []rune(rolesWhole)
+				rolesWhole = string(split[0:900]) + "..."
+			}
+
+			fmt.Println(discordgo.EndpointGuildIcon(guild.ID, guild.Splash))
+			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
+				Author: &discordgo.MessageEmbedAuthor {
+					IconURL: discordgo.EndpointGuildIcon(guild.ID, guild.Icon),
+					Name: "Guild Information",
+				},
+				Thumbnail: &discordgo.MessageEmbedThumbnail {
+					URL: discordgo.EndpointGuildIcon(guild.ID, guild.Icon),
+				},
+				Description: fmt.Sprintf("**Information for %s**\n", guild.Name),
+				Fields: []*discordgo.MessageEmbedField {
+					{ Name: "ID", Value: guild.ID, Inline: false },
+					{ Name: "Channels", Value: fmt.Sprintf("%d", len(guild.Channels)), Inline: true },
+					{ Name: "Users", Value: fmt.Sprintf("%d", guild.MemberCount), Inline: true },
+					{ Name: "Region", Value: guild.Region, Inline: true },
+					{ Name: "Owner", Value: owner.User.Username + "#" + owner.User.Discriminator, Inline: true },
+					{ Name: fmt.Sprintf("Roles [%d]", len(guild.Roles)), Value: rolesWhole, Inline: false },
+				},
+				Footer: &discordgo.MessageEmbedFooter{
+					Text: "Requested by " + message.Author.Username + "#" + message.Author.Discriminator,
+					IconURL: message.Author.AvatarURL("128"),
+				},
+				Color: 0x0fa8a5,
+			})
 		},
 		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
 			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Server Info",
 				"**Shows detailed server information, such as the ID, number of members, owner, roles, etc.**", 0xFFB6C1))
+		},
+	}
+}
+
+func userinfo() (Command) {
+	return Command{
+		Name: "userinfo",
+		Description: "Checks the info of a given user",
+		Category: "info",
+		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
+			mentioned := message.Mentions
+
+			if len(mentioned) == 0 {
+				return
+			}
+
+			channel, err := s.State.Channel(message.ChannelID)
+			if err != nil {
+				s.ChannelMessageSend(message.ChannelID, ":x: Error while retrieving channel...")
+				return
+			}
+
+			user := mentioned[0]
+			member, err := s.State.Member(channel.GuildID, user.ID)
+			if err != nil {
+				s.ChannelMessageSend(message.ChannelID, ":x: Error while retrieving member...")
+				return
+			}
+
+			roles := member.Roles
+			buffer := bytes.Buffer{}
+			for i := 0; i < len(roles); i++ {
+				role := roles[i]
+				if role != "@everyone" {
+					buffer.WriteString(role)
+				}
+
+				if i < len(roles) - 1 {
+					buffer.WriteString(", ")
+				}
+			}
+
+			rolesWhole := buffer.String()
+
+			if len(rolesWhole) > 900 {
+				split := []rune(rolesWhole)
+				rolesWhole = string(split[0:900]) + "..."
+			}
+
+			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed{
+				Author: &discordgo.MessageEmbedAuthor{
+					IconURL: user.AvatarURL("128"),
+					Name: "User Information",
+				},
+				Description: "**User Information for " + user.Username + "#" + user.Discriminator + "*",
+				Fields: []*discordgo.MessageEmbedField{
+					{ Name: "ID", Value: user.ID, Inline: false },
+					{ Name: "Join Date", Value: member.JoinedAt, Inline: true },
+					{ Name: fmt.Sprintf("	Roles [%d]", len(member.Roles)), Value: rolesWhole, Inline: false },
+				},
+				Thumbnail: &discordgo.MessageEmbedThumbnail{
+					URL: user.AvatarURL("256"),
+				},
+			})
+
+		},
+		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
+			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "User Info",
+				"**Shows user information, such as the ID, discriminator, roles, etc.**", 0xFFB6C1))
 		},
 	}
 }

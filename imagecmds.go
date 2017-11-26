@@ -9,6 +9,10 @@ type Neko struct {
 	Url string `json:"neko"`
 }
 
+type Cat struct {
+	Url string `json:"file"`
+}
+
 func catgirl() (Command) {
 	return Command {
 		Name: "catgirl",
@@ -39,6 +43,35 @@ func catgirl() (Command) {
 		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
 			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Catgirl Command", "**Displays a random catgirl image**\n" +
 				"You can look up nsfw images by using `//catgirl nsfw`.", 0xFFB6C1))
+		},
+	}
+}
+
+func cat() (Command) {
+	return Command {
+		Name: "cat",
+		Description: "Returns a random cat.",
+		Category: "image",
+		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
+			cat := &Cat{}
+			err := getJson("http://random.cat/meow", cat)
+
+			if err != nil {
+				fmt.Println(err)
+				s.ChannelMessageSend(message.ChannelID, fmt.Sprintf(":x: Something went wrong while looking for this image... (%s)", err))
+				return
+			}
+
+			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
+				Description: "Everyone needs a cat in their life~",
+				Image: &discordgo.MessageEmbedImage{
+					URL: cat.Url,
+				},
+				Color: 0x07beb8,
+			})
+		},
+		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
+			s.ChannelMessageSendEmbed(message.ChannelID, helpEmbed(s, message, "Cat Command", "**Cats!**", 0xFFB6C1))
 		},
 	}
 }

@@ -72,7 +72,9 @@ func main() {
 		log.Println(err)
 	}
 
+	CheckWaiters()
 	anilistTokenUpdate()
+
 	log.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
@@ -83,10 +85,17 @@ func main() {
 
 func registerCommands() {
 	log.Printf("Registering commands...")
-	registerCommand("ping", ping())
+	//Anime commands
 	registerCommand("anime", anime())
+	registerCommand("character", character())
+	//Image commands
 	registerCommand("catgirl", catgirl())
+	registerCommand("cat", cat())
+	//Info commands
 	registerCommand("help", help())
+	registerCommand("serverinfo", serverinfo())
+	registerCommand("userinfo", userinfo())
+	registerCommand("ping", ping())
 }
 
 func registerCommand(name string, cmd Command) {
