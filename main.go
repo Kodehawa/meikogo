@@ -55,6 +55,8 @@ func main() {
 		return
 	}
 
+	StartRedisClient()
+
 	log.Printf("Starting up Meiko...")
 
 	registerCommands()
@@ -99,7 +101,9 @@ func registerCommands() {
 	registerCommand("userinfo", userinfo())
 	registerCommand("ping", ping())
 	//Game commands
-	registerCommand("trivia", trivia()	)
+	registerCommand("trivia", trivia())
+	//Config commands
+	registerCommand("setprefix", setPrefix())
 }
 
 func registerCommand(name string, cmd Command) {
@@ -107,9 +111,10 @@ func registerCommand(name string, cmd Command) {
 }
 
 func StartRedisClient() {
+	log.Println("Opening Redis Connection...")
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
-		DB:       10,
+		DB:       1,
 	})
 }

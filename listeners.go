@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
 	"time"
+	"fmt"
 )
 
 var sessionCommands = 0
@@ -31,9 +32,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		guildPrefix := prefix
 
-		pref, err := RedisClient.Get("guild:" + channel.GuildID + ":prefix").Result()
-		if err == nil {
-			guildPrefix = pref
+		guildData, err := GetGuildData(channel.GuildID)
+		if err != nil {
+			fmt.Printf("Failed to retrieve data from %s\n", channel.GuildID)
+			fmt.Println(err)
+		}
+
+		if len(guildData.Prefix) > 0 {
+			guildPrefix = guildData.Prefix
 		}
 
 		if strings.HasPrefix(MessageContent, guildPrefix) {
