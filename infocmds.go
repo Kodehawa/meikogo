@@ -7,6 +7,7 @@ import (
 	"time"
 	"math/rand"
 	"bytes"
+	"strconv"
 )
 
 var categories = make(map[string]map[string]Command)
@@ -137,7 +138,9 @@ func serverinfo() (Command) {
 				rolesWhole = string(split[0:900]) + "..."
 			}
 
-			fmt.Println(discordgo.EndpointGuildIcon(guild.ID, guild.Splash))
+			iGID, _ := strconv.ParseInt(guild.ID, 10, 64)
+			_time := getCreationTime(iGID)
+
 			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
 				Author: &discordgo.MessageEmbedAuthor {
 					IconURL: discordgo.EndpointGuildIcon(guild.ID, guild.Icon),
@@ -151,6 +154,7 @@ func serverinfo() (Command) {
 					{ Name: "ID", Value: guild.ID, Inline: false },
 					{ Name: "Channels", Value: fmt.Sprintf("%d", len(guild.Channels)), Inline: true },
 					{ Name: "Users", Value: fmt.Sprintf("%d", guild.MemberCount), Inline: true },
+					{ Name: "Creation Date", Value: fmt.Sprintf("%d-%d-%d", _time.Year(), _time.Month(), _time.Day()), Inline: true },
 					{ Name: "Region", Value: guild.Region, Inline: true },
 					{ Name: "Owner", Value: owner.User.Username + "#" + owner.User.Discriminator, Inline: true },
 					{ Name: fmt.Sprintf("Roles [%d]", len(guild.Roles)), Value: rolesWhole, Inline: false },
@@ -214,6 +218,9 @@ func userinfo() (Command) {
 				rolesWhole = string(split[0:900]) + "..."
 			}
 
+			iUID, _ := strconv.ParseInt(user.ID, 10, 64)
+			_time := getCreationTime(iUID)
+
 			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed{
 				Author: &discordgo.MessageEmbedAuthor{
 					IconURL: user.AvatarURL("128"),
@@ -223,6 +230,7 @@ func userinfo() (Command) {
 				Fields: []*discordgo.MessageEmbedField{
 					{ Name: "ID", Value: user.ID, Inline: false },
 					{ Name: "Join Date", Value: member.JoinedAt, Inline: true },
+					{ Name: "Creation Date", Value: fmt.Sprintf("%d-%d-%d", _time.Year(), _time.Month(), _time.Day()), Inline: true },
 					{ Name: fmt.Sprintf("	Roles [%d]", len(member.Roles)), Value: rolesWhole, Inline: false },
 				},
 				Thumbnail: &discordgo.MessageEmbedThumbnail{

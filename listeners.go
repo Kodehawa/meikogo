@@ -27,6 +27,16 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	go func() {
+
+		botData, err := GetBotData()
+		if err != nil {
+			botData = &BotData{}
+		}
+
+		if stringInSlice(m.Author.ID, botData.BlackListedUsers) {
+			return
+		}
+
 		var MessageContent = m.Content
 		channel, err := s.State.Channel(m.ChannelID)
 		if err != nil {
@@ -34,6 +44,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		guildPrefix := prefix
+
+		if stringInSlice(channel.GuildID, botData.BlackListedGuilds) {
+			return
+		}
 
 		guildData, err := GetGuildData(channel.GuildID)
 		if err != nil {

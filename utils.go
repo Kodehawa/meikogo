@@ -113,3 +113,18 @@ func CreateSelectionWaiter(keys []interface{}, message *discordgo.MessageCreate,
 		return true
 	})
 }
+
+func getCreationTime(entityID int64) time.Time {
+	timestamp := (entityID >> 22) + 1420070400000
+	time := time.Unix(timestamp / 1000, 0)
+	return time.UTC()
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
