@@ -1,4 +1,4 @@
-# meikogo
-Meiko but in golang, wew
+# Meiko!Go
 
-![](https://i.imgur.com/qEZSsRX.png)
+## Multipurpose Discord bot made in golang using discord.go
+ 
