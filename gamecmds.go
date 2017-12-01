@@ -85,7 +85,12 @@ func trivia() (Command) {
 				i, err := strconv.ParseInt(m.Content, 10, 32)
 				if err != nil {
 					if strings.ToLower(html.UnescapeString(result.CorrectAnswer)) == strings.ToLower(m.Content) {
-						s.ChannelMessageSend(message.ChannelID, ":tada: Correct answer!")
+						userData, err := GetUserData(message.Author.ID)
+						if err == nil {
+							userData.IncrementGamesWon()
+							SaveUserData(message.Author.ID, userData)
+						}
+						s.ChannelMessageSend(message.ChannelID, fmt.Sprintf(":tada: Correct answer! Total Games you've won: %d", userData.GamesWon))
 						return true
 					}
 

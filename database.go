@@ -58,7 +58,7 @@ func SaveBotData(data *BotData) error {
 }
 
 func GetGuildData(guildID string) (*GuildData, error) {
-	j, err := RedisClient.Get("guild:" + guildID).Result()
+	j, err := RedisClient.HGet("guilds", guildID).Result()
 	if err == redis.Nil {
 		fmt.Println("Cannot find redis data for guild " + guildID + ", saving new one...")
 		SaveGuildData(guildID, &GuildData{})
@@ -87,7 +87,7 @@ func SaveGuildData(guildID string, data *GuildData) error {
 		return err
 	}
 
-	err = RedisClient.Set("guild:" + guildID, serializedJson, 0).Err()
+	err = RedisClient.HSet("guilds", guildID, serializedJson).Err()
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func SaveGuildData(guildID string, data *GuildData) error {
 }
 
 func GetUserData(userID string) (*UserData, error) {
-	u, err := RedisClient.Get("user:" + userID).Result()
+	u, err := RedisClient.HGet("users", userID).Result()
 	if err == redis.Nil {
 		fmt.Println("Cannot find redis data for user " + userID + ", saving new one...")
 		SaveUserData(userID, &UserData{})
@@ -125,7 +125,7 @@ func SaveUserData(userId string, data *UserData) error {
 		return err
 	}
 
-	err = RedisClient.Set("user:" + userId, serializedJson, 0).Err()
+	err = RedisClient.HSet("users", userId, serializedJson).Err()
 	if err != nil {
 		return err
 	}
