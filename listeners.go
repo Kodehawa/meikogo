@@ -27,7 +27,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	go func() {
-
 		botData, err := GetBotData()
 		if err != nil {
 			botData = &BotData{}
@@ -43,7 +42,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		guildPrefix := prefix
+		usedPrefix := ""
 
 		if stringInSlice(channel.GuildID, botData.BlackListedGuilds) {
 			return
@@ -55,35 +54,38 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			fmt.Println(err)
 		}
 
-		if len(guildData.Prefix) > 0 {
-			guildPrefix = guildData.Prefix
+		if strings.HasPrefix(MessageContent, config.Prefix) && !guildData.NoDefaultPrefix {
+			usedPrefix = config.Prefix
+		} else if len(guildData.Prefix) > 0 && strings.HasPrefix(MessageContent, guildData.Prefix) {
+			usedPrefix = guildData.Prefix
+		} else {
+			return
+		}
+
+		var Content = strings.Replace(MessageContent, usedPrefix, "", 1)
+
+		var SplitContent= strings.Split(Content, " ")
+		if len(SplitContent) >= 1 {
+			var Command = SplitContent[0]
+			SplitContent := SplitContent[1:]
+			command, commandExists := cmds[Command]
+
+			if commandExists {
+				Content = strings.Trim(strings.Replace(Content, command.Name, "", 1), " ")
+
+				if command.Category == "owner" && m.Author.ID != config.OwnerId {
+					s.ChannelMessageSend(m.ChannelID, ":octagonal_sign: You have no permission to execute this command!")
+					return
+				}
+
+				command.Execute(s, m, &Content, &SplitContent)
+				sessionCommands++
+			}
 		}
 
 		if mentionRegex.MatchString(m.Content) {
 			s.ChannelMessageSend(m.ChannelID, ":speech_balloon: Hi, my prefix on this server is `" + guildData.Prefix + "` <3")
 			return
-		}
-
-		if strings.HasPrefix(MessageContent, guildPrefix) {
-			var Content = strings.Replace(MessageContent, guildPrefix, "", 1)
-			var SplitContent= strings.Split(Content, " ")
-			if len(SplitContent) >= 1 {
-				var Command = SplitContent[0]
-				SplitContent := SplitContent[1:]
-				command, commandExists := cmds[Command]
-
-				if commandExists {
-					Content = strings.Trim(strings.Replace(Content, command.Name, "", 1), " ")
-
-					if command.Category == "owner" && m.Author.ID != config.OwnerId {
-						s.ChannelMessageSend(m.ChannelID, ":octagonal_sign: You have no permission to execute this command!")
-						return
-					}
-
-					command.Execute(s, m, &Content, &SplitContent)
-					sessionCommands++
-				}
-			}
 		}
 	}()
 }

@@ -2,6 +2,8 @@ package main
 
 import "github.com/bwmarrin/discordgo"
 
+var options = make(map[string]func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string))
+
 func setPrefix() (Command) {
 	return Command{
 		Name: "setprefix",

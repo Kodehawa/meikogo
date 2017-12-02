@@ -106,6 +106,8 @@ func registerCommands() {
 	registerCommand("setprefix", setPrefix())
 	//Owner commands
 	registerCommand("eval", eval())
+	//Fun commands
+	registerCommand("ratewaifu", ratewaifu())
 }
 
 func registerCommand(name string, cmd Command) {

@@ -7,7 +7,10 @@ import (
 )
 
 type GuildData struct {
-	Prefix string `json:"prefix"`
+	Prefix 		    string `json:"prefix"`
+	WelcomeMessage  string `json:"welcome_message"`
+	LeaveMessage    string `json:"leave_message"`
+	NoDefaultPrefix bool   `json:"no_default_prefix"`
 }
 
 type BotData struct {
@@ -18,6 +21,8 @@ type BotData struct {
 type UserData struct {
 	GamesWon   int32 	`json:"games_won"`
 	Experience int32 	`json:"experience"`
+	Waifu 	   string   `json:"waifu"`
+
 }
 
 func GetBotData() (*BotData, error) {
