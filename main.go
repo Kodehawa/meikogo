@@ -103,7 +103,7 @@ func registerCommands() {
 	//Game commands
 	registerCommand("trivia", trivia())
 	//Config commands
-	registerCommand("setprefix", setPrefix())
+	registerCommand("conf", conf())
 	//Owner commands
 	registerCommand("eval", eval())
 	//Fun commands

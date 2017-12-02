@@ -246,6 +246,12 @@ func userinfo() (Command) {
 	}
 }
 
+func about() (Command) {
+	return Command {
+
+	}
+}
+
 func getCommandsFromMap(m map[string]Command) (string) {
 	var parts []string
 
