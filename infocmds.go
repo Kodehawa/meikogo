@@ -248,7 +248,35 @@ func userinfo() (Command) {
 
 func about() (Command) {
 	return Command {
+		Name: "about",
+		Description: "Shows general bot information",
+		Category: "info",
+		Execute: func(s *discordgo.Session, message *discordgo.MessageCreate, content *string, split *[]string) {
+			s.ChannelMessageSendEmbed(message.ChannelID, &discordgo.MessageEmbed {
+				Author: &discordgo.MessageEmbedAuthor{
+					Name: "About Meiko",
+					IconURL: s.State.User.AvatarURL("128"),
+				},
+				Description: "H-Hi there! I'm **Meiko**, a simple and fun Discord bot made to make your stance on Discord a little bit more dynamic!\n" +
+					"To get started and see what I can do, type `//help` \u2764\n\n" +
+						"*Some of my features include:*\n" +
+						"✓ **Extensive Configuration** (Custom prefixes, welcome messages and more!)" +
+						"✓ **Anime Commands** (Check out `//anime`!)\n" +
+						"✓ **A lot more to discover** (Check out `//help`!)	",
+				Footer: &discordgo.MessageEmbedFooter{
+					Text: "Thanks you for choosing me!",
+				},
+				Fields: []*discordgo.MessageEmbedField {
+					{"Servers", fmt.Sprintf("%d", len(s.State.Guilds)), true },
+				},
+				Thumbnail: &discordgo.MessageEmbedThumbnail{
+					URL: s.State.User.AvatarURL("128"),
+				},
+			})
+		},
+		Help: func(s *discordgo.Session, message *discordgo.MessageCreate) {
 
+		},
 	}
 }
 

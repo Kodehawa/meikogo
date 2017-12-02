@@ -84,6 +84,19 @@ func CreateWaiter(channelId string, authorId string, waiterFunc WaiterFunc) {
 	}
 }
 
+func CreateWaiterTimeout(channelId string, authorId string, timeout int64, waiterFunc WaiterFunc) {
+	if _, ok := waiters[channelId]; !ok {
+		waiters[channelId] = Waiter {
+			Timeout: currentTimeMillis() + timeout,
+			Function: waiterFunc,
+			Author: authorId,
+		}
+	} else {
+		log.Println("There's already a waiter on " + channelId)
+	}
+}
+
+
 func CreateSelectionWaiter(keys []interface{}, message *discordgo.MessageCreate, selectionFunc func(key interface{})) {
 	CreateWaiter(message.ChannelID, message.Author.ID, func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
 		i, err := strconv.ParseInt(m.Content, 10, 32)
